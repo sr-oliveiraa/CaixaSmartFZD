@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCaixa - PDV</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/favicon.icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    
+    header {
+        background-color: #333;
+        color: #fff;
+        padding: 10px 20px;
+        text-align: center;
+    }
+    
+    nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        background-color: #444;
+    }
+    
+    nav ul li {
+        display: inline;
+        margin-right: 10px;
+    }
+    
+    nav ul li a {
+        color: #fff;
+        text-decoration: none;
+        padding: 10px;
+        display: inline-block;
+    }
+    
+    nav ul li a:hover {
+        background-color: #555;
+    }
+    
+    .pdv-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+    }
+    
+    .busca-produto, .carrinho {
+        width: 48%;
+    }
+    
+    .busca-produto input, .pagamento input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .carrinho h2, .pagamento h2 {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        margin: 0;
+    }
+    
+    .carrinho table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .carrinho table, .carrinho th, .carrinho td {
+        border: 1px solid #ddd;
+    }
+    
+    .carrinho th, .carrinho td {
+        padding: 8px;
+        text-align: left;
+    }
+    
+    .carrinho th {
+        background-color: #f2f2f2;
+    }
+    
+    .carrinho button {
+        background-color: #f44336;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    
+    .carrinho button:hover {
+        background-color: #d32f2f;
+    }
+    
+    .pagamento {
+        margin-top: 20px;
+    }
+    
+    .payment-methods {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .payment-option {
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        flex: 1 1 calc(50% - 20px);
+        box-sizing: border-box;
+    }
+    
+    .payment-option input[type="radio"] {
+        margin-right: 10px;
+    }
+    
+    .payment-option img {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+    }
+    
+    .payment-option:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .payment-option input[type="radio"]:checked + img {
+        border: 2px solid #4CAF50;
+        border-radius: 50%;
+    }
+    
+    #valor-recebido {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    #troco {
+        font-size: 18px;
+        margin-top: 10px;
+    }
+    
+    .pagamento button {
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+    
+    .pagamento button:hover {
+        background-color: #45a049;
+    }
+    
+    .alert {
+        padding: 10px;
+        color: #fff;
+        margin-top: 20px;
+        border-radius: 5px;
+    }
+    
+    .alert-success {
+        background-color: #4CAF50;
+    }
+    
+    .alert-error {
+        background-color: #f44336;
+    }
+    
+    .icon {
+        width: 24px;
+        height: 24px;
+        vertical-align: middle;
+        margin-right: 8px;
+    }
+    
+    .payment-icons img {
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+    }
+    
+    .loading {
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .loading img {
+        width: 50px;
+    }
+    .cupom {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            width: 80mm;
+            margin: auto;
+        }
+
+        .cupom h2 {
+            font-size: 16px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .cupom p, .cupom .item, .cupom .total {
+            margin: 5px 0;
+        }
+
+        .cupom .item {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cupom .item .nome {
+            font-weight: bold;
+        }
+
+        .cupom .item .quantidade, .cupom .item .preco, .cupom .item .subtotal {
+            text-align: right;
+        }
+
+        .cupom .total {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .cupom .info {
+            font-size: 10px;
+            text-align: center;
+        }
+
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+        }
+        .modal {
+    display: none; /* Oculto por padrão */
+    position: fixed; /* Fica sobre a página */
+    z-index: 1; /* Fica na frente de outros elementos */
+    left: 0;
+    top: 0;
+    width: 100%; /* Largura total */
+    height: 100%; /* Altura total */
+    overflow: auto; /* Se necessário, adiciona barra de rolagem */
+    background-color: rgb(0, 0, 0); /* Cor de fundo */
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo com opacidade */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% do topo e centralizado */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Largura do modal */
+    max-width: 400px; /* Largura máxima do modal */
+    text-align: center;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content button {
+    background-color: #4CAF50; /* Cor do botão */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+}
+
+.main-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-bottom: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+}
+
+.company-logo {
+    height: 68px;
+    margin-right: 15px;
+}
+
+.product-name {
+    font-size: 2rem;
+    color: #000000;
+    margin: 0;
+}
+
+.company-info {
+    text-align: right;
+}
+
+.company-name {
+    font-size: 1.2rem;
+    color: #333;
+    margin: 0;
+}
+
+.developer-info {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+
+
+
+
+</style>
+    </head>
+    <script>
+        let carrinho = [];
+    
+        async function buscarProduto() {
+            const query = document.getElementById('busca').value.trim();
+            const response = await fetch(`/search_produto?query=${query}`);
+            const produtos = await response.json();
+            
+            const resultContainer = document.getElementById('search-results');
+            resultContainer.innerHTML = '';
+    
+            if (produtos.length === 0) {
+                resultContainer.innerHTML = '<p>Nenhum produto encontrado.</p>';
+                return;
+            }
+    
+            produtos.forEach(produto => {
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <p><strong>Nome:</strong> ${produto.nome}</p>
+                    <p><strong>Descrição:</strong> ${produto.descricao}</p>
+                    <p><strong>Código de Barras:</strong> ${produto.codigo_barras}</p>
+                    <p><strong>Preço:</strong> R$ ${produto.preco.toFixed(2)}</p>
+                    <p><strong>Estoque:</strong> ${produto.estoque}</p>
+                    <button onclick="adicionarAoCarrinho(${produto.id}, '${produto.nome}', ${produto.preco})">Adicionar ao Carrinho</button>
+                    <hr>
+                `;
+                resultContainer.appendChild(item);
+            });
+        }
+    
+        function adicionarAoCarrinho(id, nome, preco) {
+            const produtoExistente = carrinho.find(p => p.id === id);
+            if (produtoExistente) {
+                produtoExistente.quantidade++;
+            } else {
+                carrinho.push({ id, nome, preco, quantidade: 1 });
+            }
+            atualizarCarrinho();
+        }
+    
+        function atualizarCarrinho() {
+            const tbody = document.getElementById('carrinho-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            
+            let total = 0;
+            carrinho.forEach(item => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = item.nome;
+                
+                const quantidadeCell = row.insertCell();
+                const quantidadeInput = document.createElement('input');
+                quantidadeInput.type = 'number';
+                quantidadeInput.value = item.quantidade;
+                quantidadeInput.min = '1';
+                quantidadeInput.step = '1';
+                quantidadeInput.onchange = () => {
+                    item.quantidade = parseInt(quantidadeInput.value, 10);
+                    atualizarCarrinho();
+                };
+                quantidadeCell.appendChild(quantidadeInput);
+    
+                row.insertCell().textContent = item.preco.toFixed(2);
+                row.insertCell().textContent = (item.preco * item.quantidade).toFixed(2);
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remover';
+                removeBtn.onclick = () => removerDoCarrinho(item.id);
+                row.insertCell().appendChild(removeBtn);
+                total += item.preco * item.quantidade;
+            });
+            document.getElementById('total').textContent = total.toFixed(2);
+            calcularTroco();
+        }
+    
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(p => p.id !== id);
+            atualizarCarrinho();
+        }
+    
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        function calcularTroco() {
+            const valorRecebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
+            const total = parseFloat(document.getElementById('total').textContent);
+            const pagamento = document.querySelector('input[name="pagamento"]:checked')?.value;
+            
+            if (pagamento === 'dinheiro') {
+                const troco = valorRecebido - total;
+                document.getElementById('troco').textContent = troco >= 0 ? `Troco: R$ ${troco.toFixed(2)}` : 'Valor recebido insuficiente!';
+                document.getElementById('valor-recebido').style.borderColor = troco >= 0 ? 'green' : 'red';
+            } else {
+                document.getElementById('troco').textContent = '';
+                document.getElementById('valor-recebido').style.borderColor = '';
+            }
+        }
+    
+        function imprimirCupom(carrinho, pagamento, valorRecebido) {
+    const empresa = {
+        nome: "Smart Caixa .",
+        cnpj: "12.345.678/0001-99",
+        endereco: "Rua Exemplo, 123 - Centro - Cidade/UF",
+        telefone: "(62) 985090402"
+    };
+
+    let cupomHTML = `
+        <html>
+        <head>
+            <style>
+                @media print {
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+                }
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                    margin: 0;
+                    padding: 0;
+                }
+                .cupom {
+                    width: 80mm;
+                    margin: 0 auto;
+                }
+                .cupom h2 {
+                    font-size: 16px;
+                    margin: 0;
+                    text-align: center;
+                }
+                .cupom p, .cupom .item {
+                    margin: 5px 0;
+                }
+                .cupom .item {
+                    margin-bottom: 10px;
+                    border-bottom: 1px solid #ddd;
+                }
+                .cupom .item .nome {
+                    font-weight: bold;
+                }
+                .cupom .item .quantidade, .cupom .item .preco, .cupom .item .subtotal {
+                    text-align: right;
+                }
+                .cupom .total {
+                    font-weight: bold;
+                    text-align: right;
+                }
+                .cupom .info {
+                    font-size: 10px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="cupom">
+                <h2>${empresa.nome}</h2>
+                <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
+                <p><strong>Endereço:</strong> ${empresa.endereco}</p>
+                <p><strong>Telefone:</strong> ${empresa.telefone}</p>
+                <hr>
+                <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Forma de Pagamento:</strong> ${pagamento}</p>
+                
+                <hr>
+                ${carrinho.map(item => `
+                    <div class="item">
+                        <div class="nome">${item.nome}</div>
+                        <div class="quantidade">Qtd: ${item.quantidade}</div>
+                        <div class="preco">R$ ${item.preco.toFixed(2)}</div>
+                        <div class="subtotal">Subtotal: R$ ${(item.preco * item.quantidade).toFixed(2)}</div>
+                    </div>
+                `).join('')}
+                <hr>
+                
+                <p><strong>Obrigado pela compra!</strong></p>
+                <div class="info">
+                    <p>Este é um cupom fiscal. Guarde-o para eventuais trocas ou garantias.</p>
+                    <p>Qualquer dúvida, entre em contato conosco.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const printWindow = window.open('', '', 'width=300,height=600');
+    printWindow.document.write(cupomHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('finalizar-compra').onclick = () => {
+    const valorRecebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
+    const pagamento = document.querySelector('input[name="pagamento"]:checked')?.value;
+
+    if (carrinho.length === 0) {
+        showAlert('O carrinho está vazio!', 'error');
+        return;
+    }
+
+    if (!pagamento) {
+        showAlert('Escolha uma forma de pagamento!', 'error');
+        return;
+    }
+
+    const total = parseFloat(document.getElementById('total').textContent);
+    const troco = valorRecebido - total;
+
+    if (pagamento === 'dinheiro' && troco < 0) {
+        showAlert('Valor recebido insuficiente!', 'error');
+        return;
+    }
+
+    console.log('Enviando dados para o servidor...');
+    fetch('/finalizar_compra', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrf_token')
+        },
+        body: JSON.stringify({
+            carrinho,
+            pagamento,
+            valor_recebido: valorRecebido
+        })
+    }).then(response => {
+        console.log('Resposta recebida do servidor:', response);
+        if (response.ok) {
+            showAlert('Compra finalizada com sucesso!', 'success');
+            // Armazenar os dados do carrinho para impressão
+            const carrinhoParaImprimir = [...carrinho];
+            const pagamentoParaImprimir = pagamento;
+            const valorRecebidoParaImprimir = valorRecebido;
+
+            // Limpar o carrinho após a compra
+            carrinho = [];
+            atualizarCarrinho();
+            // Limpar o campo valor recebido e o troco
+            document.getElementById('valor-recebido').value = '';
+            document.getElementById('troco').textContent = '';
+
+            // Mostrar o modal para perguntar se deseja imprimir o cupom fiscal
+            document.getElementById('imprimirModal').style.display = 'block';
+
+            // Definir ação do botão "Sim" no modal
+            document.getElementById('modal-sim').onclick = () => {
+                imprimirCupom(carrinhoParaImprimir, pagamentoParaImprimir, valorRecebidoParaImprimir);
+                fecharModal();
+                // Redirecionar para o PDV
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('pdv') }}";
+                }, 1500);
+            };
+
+            // Definir ação do botão "Não" no modal
+            document.getElementById('modal-nao').onclick = () => {
+                fecharModal();
+                // Redirecionar para o PDV
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('pdv') }}";
+                }, 1500);
+            };
+        } else {
+            return response.json().then(data => {
+                console.log('Erro na resposta do servidor:', data);
+                showAlert('Erro: ' + data.message, 'error');
+            });
+        }
+    }).catch(error => {
+        console.error('Erro na requisição:', error);
+        showAlert('Erro na requisição: ' + error.message, 'error');
+    });
+};
+
+// Função para fechar o modal
+function fecharModal() {
+    document.getElementById('imprimirModal').style.display = 'none';
+}
+
+
+    document.getElementById('valor-recebido').addEventListener('input', calcularTroco);
+    document.querySelectorAll('input[name="pagamento"]').forEach(input => {
+        input.addEventListener('change', calcularTroco);
+    });
+});
+
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            document.body.prepend(alert);
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    
+        // Adiciona um evento para o campo de código de barras
+        document.getElementById('codigo-barras').addEventListener('input', async (event) => {
+            const codigoBarras = event.target.value;
+    
+            if (codigoBarras.length >= 4) {
+                // Busca o produto pelo código de barras
+                const response = await fetch(`/search_produto?query=${codigoBarras}`);
+                const produtos = await response.json();
+                
+                if (produtos.length > 0) {
+                    const produto = produtos[0];
+                    adicionarAoCarrinho(produto.id, produto.nome, produto.preco);
+                    event.target.value = ''; // Limpa o campo após adicionar ao carrinho
+                } else {
+                    showAlert('Produto não encontrado!', 'error');
+                }
+            }
+        });
+    
+        // Adicionando opções de unidade de medida
+        const unidadeSelect = document.createElement('select');
+        unidadeSelect.innerHTML = `
+            <option value="gramas">Gramas</option>
+            <option value="quilos">Quilos</option>
+        `;
+        unidadeSelect.id = 'unidade';
+        unidadeSelect.name = 'unidade';
+        document.querySelector('.busca-produto').appendChild(unidadeSelect);
+    </script>
+    
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo-section">
+            <!-- Você pode substituir esses textos por logotipos reais -->
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo da GynCod" class="company-logo">
+            <h1 class="product-name">SmartCaixa</h1>
+        </div>
+        <div class="company-info">
+            <h2 class="company-name">Desenvolvido por GynCod</h2>
+            <p class="developer-info">Uma solução de software desenvolvida por Gustavo Oliveira</p>
+        </div>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('pdv') }}"><i class="fas fa-cash-register"></i> PDV</a></li>
+            <li><a href="{{ url_for('categorias') }}"><i class="fas fa-th"></i> Categorias</a></li>
+            <li><a href="{{ url_for('produtos') }}"><i class="fas fa-box"></i> Produtos</a></li>
+            <li><a href="{{ url_for('transacoes') }}"><i class="fas fa-receipt"></i> Transações</a></li>
+            <li><a href="{{ url_for('fechamento') }}"><i class="fas fa-calendar-check"></i> Fechamento</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+    </nav>
+    
+    
+    
+    <div class="pdv-container">
+        <div class="busca-produto">
+            
+            <h2><img src="{{ url_for('static', filename='search-icon.png') }}" class="icon" alt="Ícone de Pesquisa"> Buscar Produto</h2>
+            <input type="text" id="busca" placeholder="Buscar produto por nome ou código de barras" oninput="buscarProduto()">
+            <div id="search-results"></div>
+            <!-- Adicione o campo de código de barras -->
+
+        </div>
+        <div class="carrinho">
+            <h2><img src="{{ url_for('static', filename='cart-icon.png') }}" class="icon" alt="Ícone de Carrinho"> Carrinho</h2>
+            <table id="carrinho-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço</th>
+                        <th>Total</th>
+                        <th>Remover</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Produtos adicionados ao carrinho -->
+                </tbody>
+            </table>
+            <div>
+                Total: R$ <span id="total">0.00</span>
+            </div>
+            <div class="pagamento">
+    <h2><img src="{{ url_for('static', filename='payment-icon.png') }}" class="icon" alt="Ícone de Pagamento"> Pagamento</h2>
+    
+    <form id="form-pagamento">
+        <div class="payment-methods">
+            <label class="payment-option">
+                <input type="radio" name="pagamento" value="debito" required>
+                <img src="{{ url_for('static', filename='debit-icon.png') }}" alt="Débito">
+                Débito
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="pagamento" value="credito" required>
+                <img src="{{ url_for('static', filename='credit-icon.png') }}" alt="Crédito">
+                Crédito
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="pagamento" value="pix" required>
+                <img src="{{ url_for('static', filename='pix-icon.png') }}" alt="PIX">
+                PIX
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="pagamento" value="dinheiro" required>
+                <img src="{{ url_for('static', filename='cash-icon.png') }}" alt="Dinheiro">
+                Dinheiro
+            </label>
+        </div>
+        <input type="number" id="valor-recebido" name="valor_recebido" placeholder="Valor Recebido" min="0" step="0.01">
+        <div id="troco"></div>
+        <button type="button" id="finalizar-compra">Confirmar Pagamento</button>
+    </form>
+
+
+ 
+</div>
+<div id="imprimirModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <p>Deseja imprimir o cupom fiscal?</p>
+        <button id="modal-sim">Sim</button>
+        <button id="modal-nao">Não</button>
+    </div>
+</div>
+
+
+
+  
+</body>
+</html>
