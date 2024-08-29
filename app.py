@@ -5,7 +5,7 @@ import time
 from flask import Flask, jsonify, render_template, request, redirect, send_file, url_for, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from fpdf import FPDF
-import webview
+
 from models import FechamentoCaixa, Transacao, db, Usuario, Categoria, Produto, ItemTransacao
 
 
