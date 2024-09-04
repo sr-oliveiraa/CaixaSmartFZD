@@ -213,7 +213,7 @@
                             {% if produto.imagem %}
                                 <img src="{{ url_for('static', filename='imagens/' + produto.imagem) }}" alt="Imagem do produto" class="produto-imagem">
                             {% else %}
-                                <img src="{{ url_for('static', filename='imagens/sem-imagem.png') }}" alt="Imagem padrão" class="produto-imagem">
+                                <img src="{{ url_for('static', filename='imagens/padrao.png') }}" alt="Imagem padrão" class="produto-imagem">
                             {% endif %}
                         </td>
                         

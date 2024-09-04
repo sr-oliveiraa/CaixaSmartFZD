@@ -429,7 +429,7 @@ def search_produto():
 
 
 
-
+ 
 from flask import send_file
 from fpdf import FPDF
 import io
@@ -478,8 +478,6 @@ def gerar_pdf_fechamento():
     )
 
 from app import app
-import webbrowser
-from threading import Timer
 
 
 
