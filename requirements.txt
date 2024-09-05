@@ -4,4 +4,3 @@ Flask-Migrate
 fpdf
 SQLAlchemy
 Werkzeug
-Python3
