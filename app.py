@@ -431,7 +431,7 @@ def search_produto():
 
 
 
-
+import os
 
 
  
@@ -485,7 +485,7 @@ def gerar_pdf_fechamento():
         mimetype="application/pdf"
     )
 
-from app import app
+from app import app 
 
 
 
