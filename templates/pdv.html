@@ -347,6 +347,20 @@
     margin: 0;
 }
 
+#total{
+    font-size: 22px;
+    font-weight: bold;
+    color: #000000;
+    text-align: center;
+
+}
+
+
+
+#troco {
+    font-size: 1.2rem;
+}
+
 
 
 
@@ -471,91 +485,106 @@
     };
 
     let cupomHTML = `
-        <html>
-        <head>
-            <style>
-                @media print {
-                    @page {
-                        size: 80mm auto;
-                        margin: 0;
-                    }
-                }
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
+    <html>
+    <head>
+        <style>
+            @media print {
+                @page {
+                    size: 80mm auto;
                     margin: 0;
-                    padding: 0;
                 }
-                .cupom {
-                    width: 80mm;
-                    margin: 0 auto;
-                }
-                .cupom h2 {
-                    font-size: 16px;
-                    margin: 0;
-                    text-align: center;
-                }
-                .cupom p, .cupom .item {
-                    margin: 5px 0;
-                }
-                .cupom .item {
-                    margin-bottom: 10px;
-                    border-bottom: 1px solid #ddd;
-                }
-                .cupom .item .nome {
-                    font-weight: bold;
-                }
-                .cupom .item .quantidade, .cupom .item .preco, .cupom .item .subtotal {
-                    text-align: right;
-                }
-                .cupom .total {
-                    font-weight: bold;
-                    text-align: right;
-                }
-                .cupom .info {
-                    font-size: 10px;
-                    text-align: center;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="cupom">
-                <h2>${empresa.nome}</h2>
-                <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
-                <p><strong>Endereço:</strong> ${empresa.endereco}</p>
-                <p><strong>Telefone:</strong> ${empresa.telefone}</p>
-                <hr>
-                <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
-                <p><strong>Forma de Pagamento:</strong> ${pagamento}</p>
-                
-                <hr>
-                ${carrinho.map(item => `
-                    <div class="item">
-                        <div class="nome">${item.nome}</div>
-                        <div class="quantidade">Qtd: ${item.quantidade}</div>
-                        <div class="preco">R$ ${item.preco.toFixed(2)}</div>
-                        <div class="subtotal">Subtotal: R$ ${(item.preco * item.quantidade).toFixed(2)}</div>
-                    </div>
-                `).join('')}
-                <hr>
-                
-                <p><strong>Obrigado pela compra!</strong></p>
-                <div class="info">
-                    <p>Este é um cupom fiscal. Guarde-o para eventuais trocas ou garantias.</p>
-                    <p>Qualquer dúvida, entre em contato conosco.</p>
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                margin: 0;
+                padding: 0;
+            }
+            .cupom {
+                width: 80mm;
+                margin: 0 auto;
+                padding: 5mm;
+            }
+            .cupom h2 {
+                font-size: 16px;
+                margin: 0;
+                text-align: center;
+            }
+            .cupom p, .cupom .item {
+                margin: 5px 0;
+            }
+            .cupom .item {
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #ddd;
+            }
+            .cupom .item .nome {
+                font-weight: bold;
+            }
+            .cupom .item .quantidade, .cupom .item .preco, .cupom .item .subtotal {
+                text-align: right;
+            }
+            .cupom .total {
+                font-weight: bold;
+                text-align: right;
+                margin-top: 10px;
+            }
+            .cupom .info {
+                font-size: 10px;
+                text-align: center;
+                margin-top: 15px;
+            }
+            hr {
+                border: none;
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="cupom">
+            <h2>${empresa.nome}</h2>
+            <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
+            <p><strong>Endereço:</strong> ${empresa.endereco}</p>
+            <p><strong>Telefone:</strong> ${empresa.telefone}</p>
+            <hr>
+            <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Forma de Pagamento:</strong> ${pagamento}</p>
+            <hr>
+            ${carrinho.map(item => `
+                <div class="item">
+                    <div class="nome">${item.nome}</div>
+                    <div class="quantidade">Qtd: ${item.quantidade}</div>
+                    <div class="preco">Preço Unitário: R$ ${item.preco.toFixed(2)}</div>
+                    
                 </div>
+            `).join('')}
+            <hr>
+            <p class="total">Valor Total: R$ ${carrinho.reduce((total, item) => total + (item.preco * item.quantidade), 0).toFixed(2)}</p>
+            <hr>
+            <p><strong>Obrigado pela compra!</strong></p>
+            <div class="info">
+                
+                <p>Qualquer dúvida, entre em contato conosco.</p>
             </div>
-        </body>
-        </html>
-    `;
+        </div>
+    </body>
+    </html>
+`;
+        
+        
 
-    const printWindow = window.open('', '', 'width=300,height=600');
-    printWindow.document.write(cupomHTML);
-    printWindow.document.close();
+const printWindow = window.open('', '', 'width=300,height=600');
+printWindow.document.write(cupomHTML);
+printWindow.document.close();
+
+// Espera o conteúdo ser totalmente carregado antes de focar e imprimir
+printWindow.onload = function() {
     printWindow.focus();
     printWindow.print();
-}
-
+    printWindow.close(); // Fecha automaticamente após a impressão
+};
+        }
 
 
 

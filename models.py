@@ -70,6 +70,8 @@ class FechamentoCaixa(db.Model):
     abertura = db.Column(db.DateTime, nullable=False)
     fechamento = db.Column(db.DateTime, nullable=False)
     fundo_caixa = db.Column(db.Float, nullable=False)
+    sangria = db.Column(db.Float, default=0.0)  # Novo campo para sangria
+    outros = db.Column(db.Float, default=0.0)   # Novo campo para outras operações
     total_pix = db.Column(db.Float, default=0.0)
     total_debito = db.Column(db.Float, default=0.0)
     total_credito = db.Column(db.Float, default=0.0)
@@ -79,7 +81,6 @@ class FechamentoCaixa(db.Model):
     observacoes = db.Column(db.Text, default='')
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     usuario = db.relationship('Usuario', backref=db.backref('fechamentos', lazy=True))
-
 
 class Empresa(db.Model):
     id = db.Column(db.Integer, primary_key=True)

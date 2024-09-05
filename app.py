@@ -178,7 +178,7 @@ def add_produto():
     
     categoria_id = int(request.form['categoria_id'])
     
-    # Processa imagem se houver
+    # Processa imagem se houve
     imagem = None
     if 'imagem_produto' in request.files:
         imagem_file = request.files['imagem_produto']
@@ -293,13 +293,15 @@ def fechamento():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        abertura_str = session.get('abertura')  # Hora de abertura armazenada na sessão
+        abertura_str = session.get('abertura')
         if not abertura_str:
             return "Hora de abertura não encontrada.", 400
 
         abertura = datetime.fromisoformat(abertura_str)
         fechamento = datetime.now()
         fundo_caixa = float(request.form.get('fundo_caixa', 0))
+        sangria = float(request.form.get('sangria', 0))  # Novo campo para sangria
+        outros = float(request.form.get('outros', 0))  # Novo campo para outras operações
         usuario_id = Usuario.query.filter_by(usuario=session['usuario']).first().id
 
         # Cálculo do total por método de pagamento
@@ -328,7 +330,7 @@ def fechamento():
         ).scalar() or 0
 
         total_vendas = total_pix + total_debito + total_credito + total_dinheiro
-        saldo_final = fundo_caixa + total_vendas
+        saldo_final = fundo_caixa + total_vendas - sangria - outros
 
         fechamento = FechamentoCaixa(
             abertura=abertura,
@@ -340,6 +342,8 @@ def fechamento():
             total_dinheiro=total_dinheiro,
             total_vendas=total_vendas,
             saldo_final=saldo_final,
+            sangria=sangria,
+            outros=outros,
             usuario_id=usuario_id
         )
 
@@ -350,6 +354,7 @@ def fechamento():
         return render_template('fechamento.html', fechamento=fechamento)
 
     return render_template('fechamento.html')
+
 
 
 
@@ -453,7 +458,10 @@ def gerar_pdf_fechamento():
         'total_dinheiro': request.form.get('total_dinheiro'),
         'fundo_caixa': request.form.get('fundo_caixa'),
         'total_vendas': request.form.get('total_vendas'),
-        'saldo_final': request.form.get('saldo_final')
+        'saldo_final': request.form.get('saldo_final'),
+        'sangria': request.form.get('sangria'),
+        'outros': request.form.get('outros')
+        
     }
 
     pdf = FPDF()
