@@ -5,7 +5,7 @@ import time
 from flask import Flask, jsonify, render_template, request, redirect, send_file, url_for, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from fpdf import FPDF
-
+import pytz
 from models import FechamentoCaixa, Transacao, db, Usuario, Categoria, Produto, ItemTransacao
 
 
@@ -108,13 +108,22 @@ def finalizar_compra():
                 return jsonify({'status': 'error', 'message': f'Estoque insuficiente para {produto.nome}!'}), 400
             db.session.add(produto)
     
+    fuso_brasilia = pytz.timezone('America/Sao_Paulo')
+
+# Pegando a data e hora atuais no fuso horário de Brasília
+    data_hora_brasilia = datetime.now(fuso_brasilia)
+
+# Criando a transação com a data e hora corretas
     nova_transacao = Transacao(
-        data=datetime.now(),
-        valor=total,
-        metodo_pagamento=pagamento
-    )
+    data=data_hora_brasilia,
+    valor=total,
+    metodo_pagamento=pagamento
+)
+
+# Adicionando e commitando a transação no banco de dados    
     db.session.add(nova_transacao)
     db.session.commit()
+
     
     for item in carrinho:
         item_transacao = ItemTransacao(
