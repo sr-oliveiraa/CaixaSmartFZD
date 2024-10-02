@@ -29,7 +29,8 @@ class Produto(db.Model):
     preco = db.Column(db.Float, nullable=False)
     estoque = db.Column(db.Integer, nullable=False)
     imagem = db.Column(db.String(100))
-    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)  # Modificado para nullable=True
+
 
 
     def atualizar_estoque(self, quantidade_vendida):
