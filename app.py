@@ -154,6 +154,14 @@ def delete_categoria(categoria_id):
     
     categoria = Categoria.query.get(categoria_id)
     if categoria:
+        # Definindo categoria_id como None para todos os produtos associados
+        produtos = Produto.query.filter_by(categoria_id=categoria_id).all()
+        for produto in produtos:
+            produto.categoria_id = None  # Definindo categoria_id como None
+            db.session.add(produto)  # Adicionando à sessão para atualizar
+        db.session.commit()  # Persistindo as alterações
+
+        # Agora pode deletar a categoria
         db.session.delete(categoria)
         db.session.commit()
     
